@@ -23,7 +23,7 @@ class ConfigBuilder:
         self.rc_conf = self.config.rc_conf
         self.loader_conf = self.config.loader_conf
         self.override_kernel = False
-        self.identifier = self.get_identifier_name()
+        self.identifier = self.config.identifier
 
     def build_resource(self):
         self.update_freebsd_img_cache()
@@ -33,8 +33,6 @@ class ConfigBuilder:
         self.build_freebsd_images()
         self.build_freebsd_scripts()
 
-    def get_identifier_name(self):
-        return f"FreeBSD-{self.config.version}-{self.config.machine_combo}-{self.config.filesystem}-{self.config.interface}-{self.config.encryption}"
     
     def update_freebsd_img_cache(self):
 
@@ -201,8 +199,11 @@ class ConfigBuilder:
 
         # make script dirs
         os.makedirs(os.path.join(self.SCRIPT_DIR, self.machine_combo))
-        script = os.makedirs(os.path.join(self.IMAGE_DIR, self.machine_combo, self.identifier, ".sh"))
+        self.script = os.makedirs(os.path.join(self.IMAGE_DIR, self.machine_combo, self.identifier, ".sh"))
         qemu_recipe = FreeBSDUtils.get_qemu_recipe(self.config.machine, self.config.machine_arch,
                                      self.config.filesystem, self.img_file, bios_code, bios_var, self.config.port)
         with open(self.script, 'w') as s:
             s.write(qemu_recipe)
+    
+    def __str__(self):
+        return f"Config({', '.join(f'{attr}={value}' for attr, value in vars(self).items())})"

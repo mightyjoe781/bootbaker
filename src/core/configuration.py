@@ -15,9 +15,9 @@ class Config:
         self.validate_encryption(encryption)
 
         self.arch = arch
-        self.machine = arch.split[":"][0]
-        self.machine_arch = arch.split[":"][1]
-        self.machine_combo = self.get_machine_combo(self.machine, self.machine_combo)
+        self.machine = arch.split(":")[0]
+        self.machine_arch = arch.split(":")[1]
+        self.machine_combo = self.get_machine_combo(self.machine, self.machine_arch)
         self.filesystem = filesystem
         self.interface = interface
         self.encryption = encryption
@@ -26,6 +26,7 @@ class Config:
         self.img_file = img_file or self.get_image_file(self.machine_combo, self.flavor, self.version)
         self.img_url = img_url or self.get_img_url(self.machine, self.machine_arch, self.version, self.img_file)
         self.port = port
+        self.identifier = self.get_identifier_name()
 
         # config files
         self.rc_conf = self.get_rc_conf()
@@ -38,11 +39,14 @@ class Config:
     def get_flavor(self,arch):
         return "GENERIC.img" if arch in ["arm:armv7", "arm:armv6", "arm:arm"] else "bootonly.iso"
 
-    def get_img_file(self, mc, flavor, version):
+    def get_image_file(self, mc, flavor, version):
         return f"FreeBSD-{version}-RELEASE-{mc}-{flavor}"
     
     def get_img_url(self, m, ma, version, img_file):
         return f"{self.URLBASE}/{m}/{ma}/ISO-IMAGES/{version}/{img_file}.xz"
+
+    def get_identifier_name(self):
+        return f"FreeBSD-{self.version}-{self.machine_combo}-{self.filesystem}-{self.interface}-{self.encryption}"
     
     def get_rc_conf(self):
         return f"""
