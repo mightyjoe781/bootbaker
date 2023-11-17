@@ -1,0 +1,12 @@
+-e git+ssh://git@github.com/mightyjoe781/bootbaker.git@9ad7b2675588ed6c89097929be605d8da72db7d7#egg=BootBaker
+click==8.1.7
+configparser==6.0.0
+exceptiongroup==1.1.3
+iniconfig==2.0.0
+packaging==23.2
+pluggy==1.3.0
+psutil==5.9.6
+PyMySQL==1.1.0
+pytest==7.4.3
+shutils==0.1.0
+tomli==2.0.1
