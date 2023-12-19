@@ -10,7 +10,8 @@
             "request": "launch",
             "module": "src.cli",
             "justMyCode": true,
-            "args": ["run","-a","amd64:amd64","-i","gpt","-f","ufs","-e","none", "-v", "DEBUG"]
+            "args": ["run","-a","amd64:amd64","-i","gpt","-f","ufs","-e","none", "-v"],
+            "sudo": false
         },
         {
             "name": "CLI-setup",
@@ -18,7 +19,7 @@
             "request": "launch",
             "module": "src.cli",
             "justMyCode": true,
-            "args": ["setup", "-v", "DEBUG"]
+            "args": ["setup", "-v"]
         },
         {
             "name": "Python: Current File",

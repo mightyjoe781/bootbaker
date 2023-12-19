@@ -47,7 +47,7 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
         if build_only:
             logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
             builder = ConfigBuilder(config)
-            # builder.build_resource()
+            builder.build_resource()
             logger.debug("Build Successful")
         if test_only:
             logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")

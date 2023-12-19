@@ -2,7 +2,8 @@ from src.config import STAND_TEST_ROOT
 from src.config import SRCTOP
 from src.core.configuration import Config
 from src.utils.freebsd_utils import FreeBSDUtils
-import urllib
+import urllib.request
+import xz
 import shutil
 import subprocess
 import os
@@ -26,6 +27,7 @@ class ConfigBuilder:
         self.identifier = self.config.identifier
 
     def build_resource(self):
+        self.setup_dirs()
         self.update_freebsd_img_cache()
         self.build_freebsd_minimal_trees()
         self.build_freebsd_test_trees()
@@ -33,6 +35,10 @@ class ConfigBuilder:
         self.build_freebsd_images()
         self.build_freebsd_scripts()
 
+    def setup_dirs(self):
+        dirs = [self.BIOS_DIR, self.CACHE_DIR, self.IMAGE_DIR, self.SCRIPT_DIR, self.TREE_DIR]
+        for dir in dirs:
+            os.makedirs(dir, exist_ok=True)
     
     def update_freebsd_img_cache(self):
 
@@ -46,19 +52,30 @@ class ConfigBuilder:
         print(f"File doesn't exists fetching ...")
             # Download the image
         xz_file_path = f"{file_path}.xz"
-        urllib.request.urlretrieve(self.img_url, xz_file_path)
+        if os.path.exists(xz_file_path):
+            # compressed file exists but needs to be unpacked
+            with xz.open(xz_file_path) as f:
+                with open(file_path, 'wb') as fout:
+                    shutil.copyfileobj(f, fout)
+            return
         
+        # fetch file
+        urllib.request.urlretrieve(self.img_url, xz_file_path)
         # Extract the image
-        shutil.unpack_archive(xz_file_path, self.CACHE_DIR, "xz")
-        os.remove(xz_file_path)
+        with xz.open(xz_file_path) as f:
+            with open(file_path, 'wb') as fout:
+                shutil.copyfileobj(f, fout)
+        # os.remove(xz_file_path)
 
 
     def build_freebsd_minimal_trees(self):
         tree = f"{self.TREE_DIR}/{self.machine_combo}/freebsd"
 
         # cleanup & recreate tree
+        # note if sudo creates the tree, then shutil doesn't work properly and ignore_error bypasses that
+        # should include a check here
         shutil.rmtree(tree, ignore_errors=True)
-        os.makedirs(tree)
+        os.makedirs(tree,exist_ok=True)
 
         # create required dirs
         dirs = ["boot/kernel", "boot/defaults", "boot/lua", "boot/loader.conf.d", "sbin", "bin", "lib", "libexec", "etc", "dev"]
@@ -91,35 +108,39 @@ class ConfigBuilder:
 
         # override kernel setup
         if not self.override_kernel :
-            shutil.unpack_archive(
-                f"{tree}/{self.CACHE_DIR}/{self.img_file}",
-                f"{tree}",
-                "gztar",
-                ["boot/kernel/kernel", "boot/kernel/acl_nfs4.ko", "boot/kernel/cryptodev.ko", "boot/kernel/zfs.ko", "boot/kernel/geom_eli.ko", "boot/device.hints"],
-                ignore_errors=True
-            )
+            override_files = ["boot/kernel/kernel", "boot/kernel/acl_nfs4.ko", "boot/kernel/cryptodev.ko", "boot/kernel/zfs.ko", "boot/kernel/geom_eli.ko", "boot/device.hints"]
+            # script || true -> always pass
+            override_cmd = ["tar", "-C", tree, "-xf", f"{self.CACHE_DIR}/{self.img_file}"] + override_files
+            subprocess.run(override_cmd)
+            print(f"Kernel Override Ignored!")
         else:
             # implement kernel override code
             pass
 
     def build_freebsd_test_trees(self):
         test_dir = os.path.join(self.TREE_DIR, self.machine_combo, "test-stand")
+        os.makedirs(test_dir, exist_ok=True)
 
         mtree_cmd = ["mtree", "-deUW", "-f", f"{SRCTOP}/etc/mtree/BSD.root.dist", "-p", test_dir]
         subprocess.run(mtree_cmd, check=True)
 
-        buildenv_cmd = ["make", "-j", "100", "all"]
-        subprocess.run(buildenv_cmd, cwd=f"{SRCTOP}/stand", check=True)
-
-        install_cmd = [
-            "make",
-            "install",
-            f"DESTDIR={test_dir}",
-            "MK_MAN=no",
-            "MK_INSTALL_AS_USER=yes",
-            "WITHOUT_DEBUG_FILES=yes",
-        ]
-        subprocess.run(install_cmd, cwd=f"{SRCTOP}/stand", check=True)
+        buildenv_cmd = ["cd", f"{SRCTOP}/stand", "&&", 
+                        "SHELL='make -j 100 all'", "make", "buildenv", 
+                        f"TARGET={self.config.machine}",
+                        f"TARGET_ARCH={self.config.machine_arch}"]
+        buildinstall_cmd = ["cd", f"{SRCTOP}/stand", "&&", 
+                        f"SHELL=\"make install DESTDIR='{test_dir}' MK_MAN=no MK_INSTALL_AS_USER=yes WITHOUT_DEBUG_FILES=yes\"",
+                        "make",
+                        "buildenv",
+                        f"TARGET={self.config.machine}",
+                        f"TARGET_ARCH={self.config.machine_arch}"]
+        try:
+            buildenv_cmd_str = " ".join(buildenv_cmd)
+            buildinstall_cmd_str = " ".join(buildinstall_cmd)
+            os.system(buildenv_cmd_str)
+            os.system(buildinstall_cmd_str)
+        except:
+            raise Exception("Could not Build Env")
 
         subprocess.run(["rm", "-rf", f"{test_dir}/bin"], check=True)
         subprocess.run(["rm", "-rf", f"{test_dir}/[ac-z]*"], check=True)
