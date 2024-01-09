@@ -19,6 +19,7 @@ class ConfigBuilder:
     def __init__(self, config: Config):
         self.config = config
         self.machine_combo = self.config.machine_combo
+        self.machine_arch = self.config.machine_arch
         self.img_file = self.config.img_file
         self.img_url = self.config.img_url
         self.rc_conf = self.config.rc_conf
@@ -149,7 +150,8 @@ class ConfigBuilder:
         test_dir = os.path.join(self.TREE_DIR, self.machine_combo, "test-stand")
         esp_dir = os.path.join(self.TREE_DIR, self.machine_combo, "freebsd-esp")
 
-        subprocess.run(["rm", "-rf", esp_dir], check=True)
+        shutil.rmtree(esp_dir, ignore_errors=True)
+        os.makedirs(esp_dir)
         os.makedirs(os.path.join(esp_dir, "efi", "boot"))
 
         boot_efi = FreeBSDUtils.get_boot_ufi(self.machine_arch)
@@ -164,7 +166,7 @@ class ConfigBuilder:
         # -o sectors_per_cluster=1 : each cluster will have 1 sector
         # -s 100m : size of fs to be 100MB
         cmd = f"makefs -t msdos -o fat_type=32 -o sectors_per_cluster=1 -o volume_label=EFISYS -s 100m {esp} {src}"
-        subprocess.run(cmd)
+        subprocess.run(cmd, shell=True)
 
     def build_fs(self, fs_file, dir1, dir2):
         #- -t ffs : fast file system
@@ -178,7 +180,7 @@ class ConfigBuilder:
         else:
             cmd = f"makefs -t ffs -B little -s 200m -o label=root {fs_file} {dir1} {dir2}"
         
-        subprocess.run(cmd)
+        subprocess.run(cmd, shell=True, check=True)
 
     def build_image(self, esp_file, fs_file, img_file):
         bi = self.config.interface
@@ -186,7 +188,7 @@ class ConfigBuilder:
             cmd = f"mkimg -s {bi} -p efi:={esp_file} -p freebsd:={fs_file} -o {img_file}"
         else:
             cmd = f"mkimg -s {bi} -p efi:={esp_file} -p freebsd-{self.config.filesystem}:={fs_file} -o {img_file}"
-        subprocess.run(cmd)
+        subprocess.run(cmd, shell=True, check=True)
 
     def build_freebsd_images(self):
         src = os.path.join(self.TREE_DIR, self.machine_combo, "freebsd-esp")
@@ -194,11 +196,11 @@ class ConfigBuilder:
         fstab_dir = os.path.join(self.TREE_DIR, self.machine_combo, "test-stand")
         self.esp_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.machine_combo}.esp")
         self.fs_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.machine_combo}.{self.config.filesystem}")
-        self.img_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.image_name}.img")
+        self.img_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.identifier}.img")
         
         # mkdirs
-        os.makedirs(os.path.join(self.IMAGE_DIR, self.machine_combo))
-        os.makedirs(os.path.join(fstab_dir, "etc"))
+        os.makedirs(os.path.join(self.IMAGE_DIR, self.machine_combo),exist_ok=True)
+        os.makedirs(os.path.join(fstab_dir, "etc"),exist_ok=True)
         
         # fstab file
         with open(os.path.join(fstab_dir, "etc/fstab"), 'w') as fstab_file:

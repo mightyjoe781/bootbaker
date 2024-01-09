@@ -3,7 +3,7 @@ class FreeBSDUtils:
     def __init__(self):
         pass
 
-    def get_qemu_bin(self, ma):
+    def get_qemu_bin(ma):
         qemu_bin_map = {
             "amd64" : "/usr/local/bin/qemu-system-x86_64",
             "i386" : "/usr/local/bin/qemu-system-i386",
@@ -19,7 +19,7 @@ class FreeBSDUtils:
         return qemu_bin_map[ma]
 
     @staticmethod
-    def get_boot_ufi(self, machine_arch):
+    def get_boot_ufi(machine_arch):
         boot_efi_name = {
             "amd64" : "bootx64.efi",
             "i386" : "bootia32.efi",
@@ -35,7 +35,7 @@ class FreeBSDUtils:
         return boot_efi_name[machine_arch]
 
     @staticmethod
-    def get_qemu_recipe(self, m, ma, fs, img, bios_code, bios_vars, port):
+    def get_qemu_recipe(self,m, ma, fs, img, bios_code, bios_vars, port):
         qemu_bin = self.get_qemu_bin(ma)
         if ma == "amd64":
             script = f"""
