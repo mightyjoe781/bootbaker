@@ -35,26 +35,26 @@ class FreeBSDUtils:
         return boot_efi_name[machine_arch]
 
     @staticmethod
-    def get_qemu_recipe(self,m, ma, fs, img, bios_code, bios_vars, port):
-        qemu_bin = self.get_qemu_bin(ma)
+    def get_qemu_recipe(m, ma, fs, img, bios_code, bios_vars, port):
+        qemu_bin = FreeBSDUtils.get_qemu_bin(ma)
         if ma == "amd64":
             script = f"""
-            {qemu_bin} -nographic -m 512M \
-            -drive file={img},if=none,id=drive0,cache=writeback,format=raw \
-            -device virtio-blk,drive=drive0,bootindex=0 \
-            -drive file={bios_code},format=raw,if=pflash \
-            -monitor telnet::{port},server,nowait \
-            -serial stdio $*
-            """
+{qemu_bin} -nographic -m 512M \
+-drive file={img},if=none,id=drive0,cache=writeback,format=raw \
+-device virtio-blk,drive=drive0,bootindex=0 \
+-drive file={bios_code},format=raw,if=pflash \
+-monitor telnet::{port},server,nowait \
+-serial stdio $*
+"""
         elif ma == "arm64":
             script = f"""
-            {qemu_bin} -m 512M -cpu cortex-a57 -M virt,gic-version=3 -nographic  \
-            -drive file={img},if=none,id=drive0 \
-            -drive file={bios_code},format=raw,if=pflash,readonly=on \
-            -drive file={bios_vars},format=raw,if=pflash \
-            -device virtio-blk-device,drive=drive0 \
-            -monitor telnet::{port},server,nowait \
-            -serial stdio $*]]
-            """
+{qemu_bin} -m 512M -cpu cortex-a57 -M virt,gic-version=3 -nographic  \
+-drive file={img},if=none,id=drive0 \
+-drive file={bios_code},format=raw,if=pflash,readonly=on \
+-drive file={bios_vars},format=raw,if=pflash \
+-device virtio-blk-device,drive=drive0 \
+-monitor telnet::{port},server,nowait \
+-serial stdio $*]]
+"""
 
         return script

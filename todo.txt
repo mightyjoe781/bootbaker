@@ -1,0 +1,8 @@
+* lua : script => Build + Test (parallely (python))
+
+
+* this project : build + test (both in python) --> working on build part (70% complete) + port all the combination working
+* pip install bootbaker or a port
+
+
+* CI : jenkins + run: once a day

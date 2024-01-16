@@ -84,9 +84,11 @@ class ConfigBuilder:
             full_path = os.path.join(tree, directory)
             os.makedirs(full_path, exist_ok=True)
 
+        # TODO: fix this
         # link the /usr
-        link_path = os.path.join(tree, "usr")
-        os.symlink(tree, link_path)
+        # link_path = os.path.join(tree, "usr")
+        # os.symlink(tree, link_path)
+        # subprocess.run(f"ln -s . {link_path}", shell=True)
 
         # extract/copy required binaries
         bins = [
@@ -194,8 +196,8 @@ class ConfigBuilder:
         src = os.path.join(self.TREE_DIR, self.machine_combo, "freebsd-esp")
         dir = os.path.join(self.TREE_DIR, self.machine_combo, "freebsd")
         fstab_dir = os.path.join(self.TREE_DIR, self.machine_combo, "test-stand")
-        self.esp_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.machine_combo}.esp")
-        self.fs_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.machine_combo}.{self.config.filesystem}")
+        self.esp_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.identifier}.esp")
+        self.fs_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.identifier}.{self.config.filesystem}")
         self.img_file = os.path.join(self.IMAGE_DIR, self.machine_combo, f"freebsd-{self.identifier}.img")
         
         # mkdirs
@@ -221,8 +223,8 @@ class ConfigBuilder:
             pass
 
         # make script dirs
-        os.makedirs(os.path.join(self.SCRIPT_DIR, self.machine_combo))
-        self.script = os.makedirs(os.path.join(self.IMAGE_DIR, self.machine_combo, self.identifier, ".sh"))
+        os.makedirs(os.path.join(self.SCRIPT_DIR, self.machine_combo), exist_ok=True)
+        self.script = os.path.join(self.SCRIPT_DIR, self.machine_combo, self.identifier)+".sh"
         qemu_recipe = FreeBSDUtils.get_qemu_recipe(self.config.machine, self.config.machine_arch,
                                      self.config.filesystem, self.img_file, bios_code, bios_var, self.config.port)
         with open(self.script, 'w') as s:
