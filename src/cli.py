@@ -52,8 +52,11 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
         if test_only:
             logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
             tester = ConfigTester(config)
-            # tester.run_script()
-            logger.debug("Test Successful")
+            status = tester.run_test()
+            if status :
+                logger.debug("Test Passed")
+            else:
+                logger.debug("Test Failed")
     except Exception as e:
         logger.error(e)
 

@@ -1,3 +1,8 @@
+
+
+* work on parser to parse a config file
+* work on parallel runs of the test config
+
 * lua : script => Build + Test (parallely (python))
 
 
