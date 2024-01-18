@@ -7,7 +7,7 @@ class Config:
     VALID_INTERFACES = ["gpt", "mbr"]
     VALID_ENCRYPTIONS = ["geom","geli","none"]
 
-    def __init__(self, arch, filesystem, interface, flavor, img_file, img_url, port, encryption="none", version="13.2"):
+    def __init__(self, arch, filesystem, interface, flavor, img_file, img_url, port, encryption="none", version="13.2", recipe={}):
         # validation
         self.validate_arch(arch)
         self.validate_filesystem(filesystem)
@@ -27,6 +27,7 @@ class Config:
         self.img_url = img_url or self.get_img_url(self.machine, self.machine_arch, self.version, self.img_file)
         self.port = port
         self.identifier = self.get_identifier_name()
+        self.recipe = recipe
 
         # config files
         self.rc_conf = self.get_rc_conf()

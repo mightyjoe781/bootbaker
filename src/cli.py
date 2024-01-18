@@ -43,7 +43,7 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
     # Port should be dynamically generated
     
     try:
-        config = Config(arch, filesystem, interface, None, None, None, port, encryption)
+        config = Config(arch, filesystem, interface, None, None, None, port, encryption, recipe={})
         if build_only:
             logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
             builder = ConfigBuilder(config)

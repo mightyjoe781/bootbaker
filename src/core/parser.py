@@ -68,17 +68,29 @@ class Parser:
 
     def generate_configs(self):
         # create config from each recipe's config expression
-        # configs = []
-        # for _, recipe in self.recipes.items():
-        #     combinations = self.generate_combinations_from_regex(recipe['regex_combination'])
-        #     port = 4000
-        #     for combo in combinations:
-        #         # each combo call config class to create config objects and put them in the configs array
-        #         config = Config()
-        pass
-
-
-
-
-
-tmp = Parser('/home/smk/bootbaker/config/recipe.yml')
+        configs = []
+        for _, recipe in self.recipes.items():
+            combinations = []
+            for regex in recipe['regex_combination']:
+                regex_str = f"{recipe['arch']}-{regex}"
+                combinations.extend(self.generate_combinations_from_regex(regex_str))
+            port = 4000
+            for combo in combinations:
+                # each combo call config class to create config objects and put them in the configs array
+                arch, fs, interface, encryption = combo.split('-')
+                config = Config(
+                    arch = arch,
+                    filesystem = fs,
+                    interface = interface,
+                    flavor = recipe.get('flavor') or None,
+                    img_file = recipe.get('img_file') or None,
+                    img_url = recipe.get('img_url') or None,
+                    port = port,
+                    encryption = encryption,
+                    version = recipe.get('version') or '13.2',
+                    recipe = recipe
+                )
+                # increase port
+                configs.append(config)
+                port += 1
+        return configs
