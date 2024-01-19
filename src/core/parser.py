@@ -2,8 +2,10 @@ from src.core.configuration import Config
 import yaml
 import itertools
 from pathlib import Path
+import re
 
-
+import logging
+logger = logging.getLogger(__name__)
 
 class Parser:
     arches = ["amd64:amd64", "i386:i386", "arm:armv7", "arm64:aarch64", "riscv:riscv64", "powerpc:powerpc64", "powerpc:powerpc64le"]
@@ -13,16 +15,33 @@ class Parser:
     blacklist_regexes = ["riscv:riscv64-*-mbr-*"]
     linuxboot_edk2_list = ["amd64:amd64-*-*-*","arm64:arm64-*-*-*"]
 
-    def __init__(self, configfile: str):
-        self.configfile = Path(configfile)
+    def __init__(self, config: str):
+        logger.debug(f"config: {config}")
 
-        if not self.configfile.is_file():
-            raise FileNotFoundError(f"The specified config file '{configfile}' does not exist.")
+        pattern = re.compile(r'^([\w:]+)-(\w+)-(\w+)-(\w+)$')
+        match = pattern.match(config)
+        if match :
+            arch, fs, interface, encryption = match.groups()
+            recipe = {
+                'arch': arch,
+                'filesystem':fs,
+                'interface':interface,
+                'encryption':encryption,
+                'regex_combination': ["-".join(config.split("-")[1:])]
+            }
+            # yaml formatting
+            self.recipes = {'recipe':recipe}
+        
+        else :
+            # if its not an expression try to parse as config file
+            self.configfile = Path(config)
+            if not self.configfile.is_file():
+                raise FileNotFoundError(f"The specified config file '{config}' does not exist.")
 
-        # Load the YAML file
-        with open(configfile, 'r') as file:
-            self.recipes = yaml.safe_load(file)
-        print(self.recipes)
+            # Load the YAML file
+            with open(self.configfile, 'r') as file:
+                self.recipes = yaml.safe_load(file)
+        
 
 
     def generate_regex_from_combination(self, combination):

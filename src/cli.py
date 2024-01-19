@@ -1,12 +1,15 @@
 import click
 import logging
+from src.config import setup_logging
 from src.config import VALID_ARCH, VALID_ENCRYPTION, VALID_FILE_SYSTEMS, VALID_INTERFACES
 from src.core.configuration import Config
 from src.core.builder import ConfigBuilder
 from src.core.tester import ConfigTester
+from src.core.parser import Parser
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+
+# setup log levels
+setup_logging()
 logger = logging.getLogger(__name__)
 
 @click.group()
@@ -30,35 +33,43 @@ Example(s):\n
 @click.option("-v","--verbose", default=False, help="sets verbosity of output", is_flag=True)
 def run(configfile, src, arch, interface, filesystem, encryption, build_only, test_only, verbose):
 
+    # Adjust the log level after setting up logging
     if verbose:
+        logger.info("LOG LEVEL: DEBUG")
         logger.setLevel(logging.DEBUG)
+    else:
+        logger.info("LOG LEVEL: INFO")
+
+    if not configfile:
+        config = f"{arch}-{filesystem}-{interface}-{encryption}"
+    else:
+        config = configfile
+    
+    # call parser to get list of Config Objects
+    configs = Parser(config).generate_configs()
 
     # handles build only and test only logic
     if not build_only and not test_only:
         build_only = True
         test_only = True
 
-    port = 4000
-    # TODO: A parser should parse configfile and generate list of config based on some rule
-    # Port should be dynamically generated
-    
-    try:
-        config = Config(arch, filesystem, interface, None, None, None, port, encryption, recipe={})
-        if build_only:
-            logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-            builder = ConfigBuilder(config)
-            builder.build_resource()
-            logger.debug("Build Successful")
-        if test_only:
-            logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-            tester = ConfigTester(config)
-            status = tester.run_test()
-            if status :
-                logger.debug("Test Passed")
-            else:
-                logger.debug("Test Failed")
-    except Exception as e:
-        logger.error(e)
+    # try:
+    #     config = Config(arch, filesystem, interface, None, None, None, port, encryption, recipe={})
+    #     if build_only:
+    #         logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
+    #         builder = ConfigBuilder(config)
+    #         builder.build_resource()
+    #         logger.debug("Build Successful")
+    #     if test_only:
+    #         logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
+    #         tester = ConfigTester(config)
+    #         status = tester.run_test()
+    #         if status :
+    #             logger.debug("Test Passed")
+    #         else:
+    #             logger.debug("Test Failed")
+    # except Exception as e:
+    #     logger.error(e)
 
 @main.command("setup")
 @click.option("-v","--verbose", default="INFO", help="sets verbosity of output")

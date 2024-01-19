@@ -16,3 +16,28 @@ VALID_FILE_SYSTEMS = ["ufs", "zfs"]
 VALID_ENCRYPTION = ["geom", "geli", "none"]
 STAND_TEST_ROOT = "/home/smk/stand-test-root"
 SRCTOP = "/home/smk/freebsd-src"
+
+
+# logging config
+import logging.config
+def setup_logging():
+    logging.config.dictConfig({
+        'version': 1,
+        'formatters': {
+            'standard': {
+                'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+            }
+        },
+        'handlers': {
+            'default': {
+                'level': 'DEBUG',
+                'formatter': 'standard',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+                'handlers': ['default'],
+                'level': 'INFO',
+                'propagate': True
+        },
+    })
