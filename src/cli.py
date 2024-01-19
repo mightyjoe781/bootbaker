@@ -41,35 +41,37 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
         logger.info("LOG LEVEL: INFO")
 
     if not configfile:
-        config = f"{arch}-{filesystem}-{interface}-{encryption}"
+        configstring = f"{arch}-{filesystem}-{interface}-{encryption}"
     else:
-        config = configfile
-    
+        configstring = configfile
+
     # call parser to get list of Config Objects
-    configs = Parser(config).generate_configs()
+    configs = Parser(configstring).generate_configs()
+    logger.info(f"Parsed {len(configs)} configs.")
 
     # handles build only and test only logic
     if not build_only and not test_only:
         build_only = True
         test_only = True
 
-    # try:
-    #     config = Config(arch, filesystem, interface, None, None, None, port, encryption, recipe={})
-    #     if build_only:
-    #         logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-    #         builder = ConfigBuilder(config)
-    #         builder.build_resource()
-    #         logger.debug("Build Successful")
-    #     if test_only:
-    #         logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-    #         tester = ConfigTester(config)
-    #         status = tester.run_test()
-    #         if status :
-    #             logger.debug("Test Passed")
-    #         else:
-    #             logger.debug("Test Failed")
-    # except Exception as e:
-    #     logger.error(e)
+    try:
+        for config in configs:
+            logger.info(f"Processing config: {str(config)}")
+            if build_only:
+                logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
+                builder = ConfigBuilder(config)
+                builder.build_resource()
+                logger.debug("Build Successful")
+            if test_only:
+                logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
+                tester = ConfigTester(config)
+                status = tester.run_test()
+                if status :
+                    logger.debug("Test Passed")
+                else:
+                    logger.debug("Test Failed")
+    except Exception as e:
+        logger.error(e)
 
 @main.command("setup")
 @click.option("-v","--verbose", default="INFO", help="sets verbosity of output")
