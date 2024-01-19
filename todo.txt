@@ -1,13 +1,19 @@
 
+TODO:
+* Create a new Resource Manger Class that parallely executes build and testing for bunch of combination
+* Add instructions to use this package
+* Enrich with support of more combinations to use
+* Work towards getting this published as pip package or a port for FreeBSD(good for exposure to ports)
+* Work on presenting this work to community
+* Work towards optimizing this for CI/CD Pipeline so it could be utilised on commit basis
+* Work on writing good documentation so that developers can include this as a tool in their arsenal for 
+  bootloader related stuff
 
-* work on parser to parse a config file
-* work on parallel runs of the test config
+------------------------------------------------------------
+# Ignore stuff down below :)
 
-* lua : script => Build + Test (parallely (python))
-
-
-* this project : build + test (both in python) --> working on build part (70% complete) + port all the combination working
-* pip install bootbaker or a port
-
-
-* CI : jenkins + run: once a day
+To Build the package to run as bootbaker.
+```sh
+pip install --editable . 
+```
+------------------------------------------------------------
