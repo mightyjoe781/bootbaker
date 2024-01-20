@@ -11,6 +11,7 @@ class ConfigTester:
     timeout = 60
 
     def __init__(self, config: Config):
+        self.config = config
         self.script_file = f"{config.identifier}.sh"
         self.script_dir = os.path.join(self.SCRIPT_DIR, config.machine_combo)
         self.machine_combo = config.machine_combo

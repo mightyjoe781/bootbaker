@@ -54,24 +54,41 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
         build_only = True
         test_only = True
 
-    try:
-        for config in configs:
-            logger.info(f"Processing config: {str(config)}")
-            if build_only:
-                logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-                builder = ConfigBuilder(config)
+    # lets build in series(some stuff is shared, need to fix it)
+    successfull_builds = []
+    if build_only:
+        # since builder has copies of config in its class variables
+        builders = [ ConfigBuilder(config) for config in configs ]
+        for builder in builders:
+            # logger.debug(f"Building Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
+            try:
                 builder.build_resource()
+                successfull_builds.append(builder.config)
                 logger.debug("Build Successful")
-            if test_only:
-                logger.debug(f"Testing Bootloader => {arch}-{filesystem}-{interface}-{encryption}")
-                tester = ConfigTester(config)
+            except Exception as e:
+                logger.debug("Build Failed")
+                logger.error(e)
+            
+
+    # test in parallel
+    successfull_tests = []
+    if test_only:
+        configs_to_test = successfull_builds if build_only else configs
+        testers = [ ConfigTester(configs) for config in configs_to_test]
+        for tester in testers:
+            try:
                 status = tester.run_test()
                 if status :
+                    successfull_tests.append(tester.config)
                     logger.debug("Test Passed")
                 else:
                     logger.debug("Test Failed")
-    except Exception as e:
-        logger.error(e)
+            except Exception as e:
+                logger.debug("Test Failed")
+                logger.error(e)
+    
+    # prints summary for the run
+    
 
 @main.command("setup")
 @click.option("-v","--verbose", default="INFO", help="sets verbosity of output")
