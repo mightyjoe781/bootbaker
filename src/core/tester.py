@@ -5,19 +5,20 @@ import subprocess
 import time
 
 class ConfigTester:
-    SCRIPT_DIR = f"{STAND_TEST_ROOT}/script"
-    LOG_DIR = f"{STAND_TEST_ROOT}/logs"
     target_string = "RC COMMAND RUNNING -- SUCCESS!!!"
     timeout = 60
 
     def __init__(self, config: Config):
         self.config = config
-        self.script_file = f"{config.identifier}.sh"
-        self.script_dir = os.path.join(self.SCRIPT_DIR, config.machine_combo)
+        self.script_file = self.config.script_file
+        self.script_dir = self.config.script_dir
         self.machine_combo = config.machine_combo
-        self.log_path = os.path.join(self.LOG_DIR, self.machine_combo)
-        self.log_file = os.path.join(self.log_path, self.script_file.replace('.sh', '.log'))
-        os.makedirs(self.LOG_DIR,exist_ok=True)
+        self.log_path = self.config.log_path
+        self.log_file = self.config.log_file
+        self.setup()
+
+    def setup(self):
+        # os.makedirs(self.LOG_DIR,exist_ok=True) done in configuration file
         os.makedirs(self.log_path, exist_ok=True)
     
     def run_qemu_script(self):

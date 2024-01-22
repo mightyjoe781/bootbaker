@@ -1,3 +1,7 @@
+from src.config import STAND_TEST_ROOT
+import os
+
+
 # Config class object represents a set of config to run by program
 class Config:
     URLBASE = "https://download.freebsd.org/ftp/releases"
@@ -6,6 +10,9 @@ class Config:
     VALID_FILESYSTEMS = ["ufs", "zfs", "ffs"]
     VALID_INTERFACES = ["gpt", "mbr"]
     VALID_ENCRYPTIONS = ["geom","geli","none"]
+    SCRIPT_DIR = f"{STAND_TEST_ROOT}/script"
+    LOG_DIR = f"{STAND_TEST_ROOT}/logs"
+    target_string = "RC COMMAND RUNNING -- SUCCESS!!!"
 
     def __init__(self, arch, filesystem, interface, flavor, img_file, img_url, port, encryption="none", version="13.2", recipe={}):
         # validation
@@ -33,6 +40,16 @@ class Config:
         self.rc_conf = self.get_rc_conf()
         self.loader_conf = self.get_loader_conf()
         self.fstab_conf = self.get_fstab_conf()
+
+        # for testing
+        self.script_file = f"{self.identifier}.sh"
+        self.script_dir = os.path.join(self.SCRIPT_DIR, self.machine_combo)
+        self.log_path = os.path.join(self.LOG_DIR, self.machine_combo)
+        self.log_file = os.path.join(self.log_path, self.script_file.replace('.sh', '.log'))
+        self.setup_dirs()
+
+    def setup_dirs(self):
+        os.makedirs(self.LOG_DIR,exist_ok=True)
 
     def get_machine_combo(self, m, ma):
         return f"{m}-{ma}" if m != ma else ma

@@ -3,6 +3,7 @@ import logging
 from src.config import setup_logging
 from src.config import VALID_ARCH, VALID_ENCRYPTION, VALID_FILE_SYSTEMS, VALID_INTERFACES
 from src.core.configuration import Config
+from src.core.resource_manager import ResourceManager
 from src.core.builder import ConfigBuilder
 from src.core.tester import ConfigTester
 from src.core.parser import Parser
@@ -72,22 +73,31 @@ def run(configfile, src, arch, interface, filesystem, encryption, build_only, te
 
     # test in parallel
     successfull_tests = []
+    parallel_flag = True
     if test_only:
         configs_to_test = successfull_builds if build_only else configs
-        testers = [ ConfigTester(configs) for config in configs_to_test]
-        for tester in testers:
-            try:
-                status = tester.run_test()
-                if status :
-                    successfull_tests.append(tester.config)
-                    logger.debug("Test Passed")
-                else:
+        testers = [ ConfigTester(config) for config in configs_to_test]
+        if not parallel_flag:
+            # sequence one by one
+            for tester in testers:
+                try:
+                    status = tester.run_test()
+                    if status :
+                        successfull_tests.append(tester.config)
+                        logger.debug("Test Passed")
+                    else:
+                        logger.debug("Test Failed")
+                except Exception as e:
                     logger.debug("Test Failed")
+                    logger.error(e)
+        else:
+            # submit to resource manager class (probably rename better)
+            try:
+                resource = ResourceManager(configs_to_test)
+                resource.work()
             except Exception as e:
-                logger.debug("Test Failed")
-                logger.error(e)
-    
-    # prints summary for the run
+                logger.error(str(e))
+                logger.error("Error Occurred while testing")
     
 
 @main.command("setup")
