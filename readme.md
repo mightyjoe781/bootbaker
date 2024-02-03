@@ -23,6 +23,58 @@ pip install --editable .
 
 ## Getting Started
 
+#### 1. Run a Basic Test Command for specific combination
+```bash
+bootbaker run -a amd64:amd64 -i gpt -f ufs -e none -v
+```
+
+#### 2. Options Explained
+```txt
+$ bootbaker run --help
+Usage: bootbaker run [OPTIONS]
+
+Options:
+  -c, --configfile FILENAME       Config file to run bootbaker
+  -s, --src PATH                  path to freebsd source tree
+  -a, --arch [amd64:amd64|arm64:aarch64|arm:armv7|riscv:riscv64|powerpc:powerpc64]
+                                  architecture name
+  -i, --interface [gpt|mbr|*]     interface name
+  -f, --filesystem [ufs|zfs|*]    filesystem name
+  -e, --encryption [geom|geli|none]
+                                  encryption strategy
+  -b, --build-only                Only builds bootloader
+  -t, --test-only                 Only tests bootloader
+  -v, --verbose                   sets verbosity of output
+  --help                          Show this message and exit.
+```
+
+#### 3. Running using Custom Config File
+```bash
+bootbaker run -c custom_config.yaml
+```
+
+```yaml
+# example config
+recipe_1:
+  arch: "amd64:amd64"
+  machine_arch: "amd64"
+  machine_combo: "amd64"
+
+  # optional parameters
+  freebsd_version: "13.2"
+  img_flavor: "bootonly.iso"
+  img_url: "FreeBSD-13.0-RELEASE-amd64-bootonly.iso"
+  regex_combination: ["*-*-none"]
+  # above expression evaluates to following combinations
+  # regex_combination = {"ufs-gpt-none","ufs-mbr-none","zfs-gpt-none", "zfs-mbr-none"}
+  # note there is a internal filter that filters out none working combinations
+recipe_2:
+  arch: "arm64:aarch64"
+  regex_combination: ["*-gpt-none"]
+recipe_3:
+  arch: "riscv:riscv64"
+  regex_combination: ["*-gpt-none"]
+```
 
 ## Open Items
 TODO:
