@@ -5,13 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CLI-run",
+            "name": "CLI-run-amd64-gpt-ufs",
             "type": "python",
             "request": "launch",
             "module": "src.cli",
             "justMyCode": true,
             // "args": ["run","-a","amd64:amd64","-i","gpt","-f","ufs","-e","none"],
             "args": ["run","-a","amd64:amd64","-i","gpt","-f","ufs","-e","none", "-v"],
+            "sudo": false
+        },
+        {
+            "name": "CLI-run-amd64-*-*-none",
+            "type": "python",
+            "request": "launch",
+            "module": "src.cli",
+            "justMyCode": true,
+            "args": ["run","-a","amd64:amd64","-i","*","-f","*","-e","none", "-v"],
             "sudo": false
         },
         {

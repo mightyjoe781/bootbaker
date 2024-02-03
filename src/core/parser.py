@@ -18,7 +18,7 @@ class Parser:
     def __init__(self, config: str):
         logger.debug(f"config: {config}")
 
-        pattern = re.compile(r'^([\w:]+)-(\w+)-(\w+)-(\w+)$')
+        pattern = re.compile(r'^([\w:*]+)-([\w*]+)-([\w*]+)-([\w*]+)$')
         match = pattern.match(config)
         if match :
             arch, fs, interface, encryption = match.groups()
