@@ -30,7 +30,7 @@ class ResourceManager():
         self.configs = configs
 
     # recusive kill
-    def recursive_kill(process):
+    def recursive_kill(self,process):
         parent = psutil.Process(process.pid)
         for child in parent.children(recursive=True):
             child.kill()
@@ -44,6 +44,7 @@ class ResourceManager():
     # consumer
     def consume_tasks(self):
         while True:
+            process = None
             try:
                 config = self.task_queue.get(timeout=2)
                 script = os.path.join(config.script_dir, config.script_file)
