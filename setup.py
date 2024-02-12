@@ -7,7 +7,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         'psutil',
-        'Click'
+        'Click',
+        'python-xz',
+        'pyyaml',
+        'shutils'
     ],
     entry_points={
         'console_scripts': [

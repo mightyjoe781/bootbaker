@@ -18,7 +18,7 @@ BootBaker fetches various FreeBSD images, builds resources (modified qemu images
 
 To Build the package to run as bootbaker.
 ```sh
-pip install --editable . 
+pip3 install --editable . 
 ```
 
 ## Getting Started
