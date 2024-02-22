@@ -10,9 +10,26 @@ BootBaker is a script designed for testing FreeBSD across multiple architectures
 
 Further integration with existing build infrastructure (e.g., Jenkins or GitHub Actions) is under exploration to generate comprehensive test result summaries.
 
+| Architecture | Status |
+|--------------|--------|
+| amd64        |  ✅    |
+| aarch64      |  ✅    |
+| riscv64      |  ✅    |
+| armv7        |  🚧    |
+| powerpc64le  |  🚧    |
+| arm64        |  ❌    |
+
+
 ## How it Works
 
 BootBaker fetches various FreeBSD images, builds resources (modified qemu images), and tests them for boot. If the qemu image successfully boots, it indicates that the combination of architecture, file system, boot interface, and encryption is functioning correctly.
+
+## Pre-requisite
+
+```bash
+# for testing riscv64
+pkg install sysutils/u-boot-qemu-riscv64
+```
 
 ## Installation
 

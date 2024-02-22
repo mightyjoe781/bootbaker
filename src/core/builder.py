@@ -224,7 +224,10 @@ class ConfigBuilder:
             subprocess.run(["dd","if=/dev/zero", f"of={bios_var}", "bs=1M", "count=64"])
             subprocess.run(["dd","if=/dev/zero", f"of={bios_code}", "bs=1M", "count=64"])
             subprocess.run(["dd","if=/usr/local/share/qemu/edk2-aarch64-code.fd", f"of={bios_code}", "conv=notrunc"])
+        elif self.config.machine_arch == "riscv64":
+            shutil.copy("/usr/local/share/qemu/opensbi-riscv64-generic-fw_dynamic.bin", bios_code)
         else:
+            raise Exception(f"{self.config.machine_arch} not implemented yet!")
             pass
 
         # make script dirs
