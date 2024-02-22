@@ -56,5 +56,36 @@ class FreeBSDUtils:
 -monitor telnet::{port},server,nowait \
 -serial stdio $*
 """
+        elif ma == "riscv64":
+            # https://wiki.freebsd.org/riscv/QEMU
+            script = f"""
+{qemu_bin} -m 512M -smp 2 -nographic \
+-bios /usr/local/share/opensbi/lp64/generic/firmware/fw_jump.elf \
+-kernel /usr/local/share/u-boot/u-boot-qemu-riscv64/u-boot.bin \
+-drive file={img},format=raw,id=hd0 \
+-device virtio-blk-device,drive=hd0,bootindex=0 \
+-monitor telnet::{port},server,nowait \
+-serial stdio $*
+"""
+        elif ma == "armv7":
+            script = f"""
+{qemu_bin} -machine virt -m 512M -smp 2 -nographic \
+-bios /usr/local/share/u-boot/u-boot-qemu-arm/u-boot.bin \
+-drive if=none,file={img},id=hd0 \
+-device virtio-blk-device,drive=hd0 \
+-monitor telnet::{port},server,nowait \
+-serial stdio $*
+"""
+        elif ma == "powerpc64":
+            script = f"""
+{qemu_bin} -machine pseries,accel=kvm,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken \
+-m 512M -smp 2 -nographic -enable-kvm \
+-drive if=none,file={img},id=hd0 \
+-device virtio-blk-device,drive=hd0 \
+-monitor telnet::{port},server,nowait \
+-serial stdio $*
+"""
+        else:
+            script = ""
 
         return script
