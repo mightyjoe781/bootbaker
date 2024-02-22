@@ -113,8 +113,9 @@ class ConfigBuilder:
         if not self.override_kernel :
             override_files = ["boot/kernel/kernel", "boot/kernel/acl_nfs4.ko", "boot/kernel/cryptodev.ko", "boot/kernel/zfs.ko", "boot/kernel/geom_eli.ko", "boot/device.hints"]
             # script || true -> always pass
-            override_cmd = ["tar", "-C", tree, "-xf", f"{self.CACHE_DIR}/{self.img_file}"] + override_files
-            subprocess.run(override_cmd)
+            for file in override_files:
+                override_cmd = ["tar", "-C", tree, "-xf", f"{self.CACHE_DIR}/{self.img_file}", file]
+                subprocess.run(override_cmd, check=False)
             print(f"Kernel Override Ignored!")
         else:
             # implement kernel override code
@@ -216,9 +217,13 @@ class ConfigBuilder:
         bios_code = os.path.join(self.BIOS_DIR, f"edk2-{self.machine_combo}-code.fd")
         bios_var = os.path.join(self.BIOS_DIR, f"edk2-{self.machine_combo}-var.fd")
 
-        if self.config.machine == "amd64":
+        if self.config.machine_arch == "amd64":
             shutil.copy("/usr/local/share/qemu/edk2-x86_64-code.fd", bios_code)
             shutil.copy("/usr/local/share/qemu/edk2-i386-vars.fd", bios_var)
+        elif self.config.machine_arch == "aarch64":
+            subprocess.run(["dd","if=/dev/zero", f"of={bios_var}", "bs=1M", "count=64"])
+            subprocess.run(["dd","if=/dev/zero", f"of={bios_code}", "bs=1M", "count=64"])
+            subprocess.run(["dd","if=/usr/local/share/qemu/edk2-aarch64-code.fd", f"of={bios_code}", "conv=notrunc"])
         else:
             pass
 

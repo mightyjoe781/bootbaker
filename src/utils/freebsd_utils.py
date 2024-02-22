@@ -46,7 +46,7 @@ class FreeBSDUtils:
 -monitor telnet::{port},server,nowait \
 -serial stdio $*
 """
-        elif ma == "arm64":
+        elif ma == "aarch64":
             script = f"""
 {qemu_bin} -m 512M -cpu cortex-a57 -M virt,gic-version=3 -nographic  \
 -drive file={img},if=none,id=drive0 \
@@ -54,7 +54,7 @@ class FreeBSDUtils:
 -drive file={bios_vars},format=raw,if=pflash \
 -device virtio-blk-device,drive=drive0 \
 -monitor telnet::{port},server,nowait \
--serial stdio $*]]
+-serial stdio $*
 """
 
         return script
