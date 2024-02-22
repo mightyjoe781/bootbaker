@@ -59,7 +59,7 @@ class FreeBSDUtils:
         elif ma == "riscv64":
             # https://wiki.freebsd.org/riscv/QEMU
             script = f"""
-{qemu_bin} -m 512M -smp 2 -nographic \
+{qemu_bin} -m 512M -smp 2 -nographic -machine virt \
 -bios /usr/local/share/opensbi/lp64/generic/firmware/fw_jump.elf \
 -kernel /usr/local/share/u-boot/u-boot-qemu-riscv64/u-boot.bin \
 -drive file={img},format=raw,id=hd0 \
