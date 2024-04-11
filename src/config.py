@@ -9,6 +9,9 @@
 * --------------------------------------------------------------------
 """
 
+# logging config
+import logging.config
+
 # Defaults
 VALID_ARCH = ["amd64:amd64", "arm64:aarch64", "arm:armv7", "riscv:riscv64", "powerpc:powerpc64"]
 VALID_INTERFACES = ["gpt", "mbr"]
@@ -18,8 +21,6 @@ STAND_TEST_ROOT = "/home/smk/stand-test-root"
 SRCTOP = "/home/smk/freebsd-src"
 
 
-# logging config
-import logging.config
 def setup_logging():
     logging.config.dictConfig({
         'version': 1,

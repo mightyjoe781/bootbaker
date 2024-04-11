@@ -50,7 +50,7 @@ class ConfigBuilder:
             return
 
         # fetch file and uncompress using xz
-        print(f"File doesn't exists fetching ...")
+        print("File doesn't exists fetching ...")
             # Download the image
         xz_file_path = f"{file_path}.xz"
         if os.path.exists(xz_file_path):
@@ -116,7 +116,7 @@ class ConfigBuilder:
             for file in override_files:
                 override_cmd = ["tar", "-C", tree, "-xf", f"{self.CACHE_DIR}/{self.img_file}", file]
                 subprocess.run(override_cmd, check=False)
-            print(f"Kernel Override Ignored!")
+            print("Kernel Override Ignored!")
         else:
             # implement kernel override code
             pass
@@ -143,7 +143,7 @@ class ConfigBuilder:
             buildinstall_cmd_str = " ".join(buildinstall_cmd)
             os.system(buildenv_cmd_str)
             os.system(buildinstall_cmd_str)
-        except:
+        except Exception:
             raise Exception("Could not Build Env")
 
         subprocess.run(["rm", "-rf", f"{test_dir}/bin"], check=True)
